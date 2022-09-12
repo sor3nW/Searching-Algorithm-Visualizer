@@ -10,6 +10,7 @@ dimensions = screenWidth, screenHeight = 500,800
 screen = pygame.display.set_mode((dimensions))
 # this is the first commit from github
 # now Im making a change from my local repository
+# making sure this works
 num = 15
 grid = [[0 for i in range(num)]for j in range(num)]
 diff = screenWidth//num
