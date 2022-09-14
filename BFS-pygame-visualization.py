@@ -46,7 +46,7 @@ def clear_board():
 def breadthFirst(r, c):
     visit = set()
     q = collections.deque()
-    print((r, c))
+
     visit.add((r, c))
     q.append((r, c))
 
@@ -75,6 +75,33 @@ def secondPoint():
         secondPoint()
     else:
         return pointx, pointy
+def pointDistance(r, c):
+    pass
+
+def dijkstras(r, c):
+    visit = set()
+    q = collections.deque()
+
+    visit.add((r, c))
+    q.append((r, c))
+
+    run = True
+    while q:
+
+        if run == True:
+            row, col = q.popleft()
+            directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+            for r, c in directions:
+                r, c = row + r, col + c
+                if r in range(len(grid)) and c in range(len(grid[0])) and (r, c) not in visit and grid[r][c] == 0:
+                    visit.add((r, c))
+                    q.append((r, c))
+                    grid[r][c] = 2
+                if r in range(len(grid)) and c in range(len(grid[0])) and (r, c) not in visit and grid[r][c] == 10:
+                    return (r, c)
+
+
+
 
 
 
