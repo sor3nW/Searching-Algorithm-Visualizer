@@ -1,6 +1,8 @@
+
 import pygame
-import math
+
 from queue import PriorityQueue
+from collections import deque
 
 dim = screen_W, screen_H = 500,700
 screen = pygame.display.set_mode((dim))
@@ -34,8 +36,7 @@ class Box:
     def isnotwall(self):
         return self.color != colors["black"]
 
-    def get_pos(self):
-        return self.row, self.col
+    
 
     def add_neighbors(self, grid):
         self.neighbors = []
@@ -86,6 +87,7 @@ def reconstruct_path(came_from, current, draw):
 
 
 def heuristic(p1, p2):
+    
     x1, y1 = p1
     x2, y2 = p2
     return abs(x1 - x2) + abs(y1 - y2)
@@ -99,7 +101,8 @@ def aStarPathfind(grid, start, end, draw):
     gScore[start] = 0
 
     fScore = {spot: float("inf") for row in grid for spot in row}
-    fScore[start] = heuristic(start.get_pos, end.get_pos)
+    
+    fScore[start] = heuristic((start.row, start.col), (end.row, end.col))
 
     while not openSet.empty():
         for event in pygame.event.get():
@@ -115,7 +118,7 @@ def aStarPathfind(grid, start, end, draw):
             if tentative_gScore < gScore[neighbor]:
                 cameFrom[neighbor] = current
                 gScore[neighbor] = tentative_gScore
-                fScore[neighbor] = tentative_gScore + heuristic(neighbor)
+                fScore[neighbor] = tentative_gScore + heuristic((neighbor.row, neighbor.col), (end.row, end.col))
                 if neighbor not in openSet:
                     count += 1
                     openSet.put((fScore[neighbor], count, neighbor))
@@ -123,6 +126,32 @@ def aStarPathfind(grid, start, end, draw):
         if current != start:
             current.color = colors["red"]
     return False
+
+def breadthFirstSearch(x, y, grid, draw):
+    
+    
+    q = deque()
+    visit = set()
+    q.append((x, y))
+    visit.add((x, y))
+    
+    while q:
+        i, j = q.popleft()
+        grid[i][j].color = colors["red"]
+        
+        directions = [[1,0], [0,1], [-1,0], [0,-1]]
+        for r, c in directions:
+            nextRow, nextCol = i + r, j + c
+            if ( nextRow in range(num) and nextCol in range(num) and grid[nextRow][nextCol].isnotwall() and (nextRow, nextCol) not in visit):
+                q.append((nextRow, nextCol))
+            if grid[nextRow][nextCol].color == colors["purple"] and (nextRow, nextCol) not in visit:
+                grid[x][y].color = colors["purple"]
+                return True
+    return False
+
+
+                
+
 
 def main():
     start = None
@@ -143,19 +172,27 @@ def main():
                 if event.key == pygame.K_r:
                     grid = array()
                     pointCount = 0
-                if event.key == pygame.K_b:
-                    let = "b"
+                if event.key == pygame.K_w:
+                    let = "w"
                 if event.key == pygame.K_s:
                     let = "s"
+                if event.key == pygame.K_a:
+                    let = "a"
+                if event.key == pygame.K_b:
+                    let = "b"
+
                 if event.key == pygame.K_RETURN and pointCount == 2:
                     for r in grid:
                         for spot in r:
                             spot.add_neighbors(grid)
-                    aStarPathfind(grid, start, end, lambda: draw(grid))
+                    if let == "a":
+                        aStarPathfind(grid, start, end, lambda: draw(grid))
 
+                    if let == "b":
+                        breadthFirstSearch(start.row, start.col, grid, lambda: draw(grid))
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if let == "b":
+                if let == "w":
                     flag1 = True
                 if let == "s":
                     flag2 = True
@@ -167,7 +204,7 @@ def main():
             r, c = pygame.mouse.get_pos()
             x, y = get_pos(r, c)
             spot = grid[x][y]
-            if let == "b":
+            if let == "w":
                 spot.color = colors["black"]
 
         if flag2 == True:
@@ -178,7 +215,7 @@ def main():
 
                 if pointCount == 0:
                     start = spot
-
+                    
                 if pointCount == 1:
                     end = spot
                 spot.color = colors["purple"]
